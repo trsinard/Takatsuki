@@ -19,10 +19,14 @@ package nl.nitori.Takatsuki.Util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -34,8 +38,25 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 public class XMLHelper {
+    public static Document readDocumentFromFile(String fileName) {
+        try {
+            File fXmlFile = new File(fileName);
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory
+                    .newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(fXmlFile);
+            doc.getDocumentElement().normalize();
+            return doc;
+        } catch (IOException | ParserConfigurationException | SAXException e) {
+            Log.error("There was an error loading the file " + fileName + ": "
+                    + e.getMessage());
+            return null;
+        }
+    }
+
     public static boolean writeDocumentToFile(Document doc, String fileName) {
         try {
             return writeDocumentToStream(doc, new FileOutputStream(new File(

@@ -34,4 +34,10 @@ public interface SearchNode<T> {
      * @return A heuristic score, where a higher score benefits MAX
      */
     public float getSearchScore();
+
+    /**
+     * @return The probability of this node if parent.getSearchTeam() == CHANCE.
+     *         Any value if otherwise
+     */
+    public float getChance();
 }

@@ -28,7 +28,7 @@ public class MinimaxSearch {
      * Finds the optimal move using the ExpectiMinimax algorithm
      * 
      * @param parent
-     *            The root of the game tree
+     *            The root of the game tree. Cannot be a CHANCE node
      * @param maxDepth
      *            How deep to search the tree. Pass -1 to have no bound
      * @return A pair containing both the optimal _next_ move, and the
@@ -71,12 +71,12 @@ public class MinimaxSearch {
         Iterator<ScoreNodePair<T>> iterator = results.iterator();
         switch (parent.getSearchTeam()) {
         case CHANCE:
-            // Calculates an average (equal probability) score and chooses a
-            // random node as the return
+            // Calculates the expected value
             float totalScore = 0.0f;
-            while (iterator.hasNext())
-                totalScore += iterator.next().score;
-            totalScore /= (results.size());
+            for (int i = 0; i < results.size(); i++) {
+                totalScore += results.get(i).score
+                        * successors.get(i).getChance();
+            }
             toReturn = results.get(Random.getRangeInt(0, results.size() - 1));
             toReturn.score = totalScore;
             break;
@@ -111,6 +111,10 @@ public class MinimaxSearch {
      */
     private static <T extends SearchNode<T>> ScoreNodePair<T> asyncMinimaxLaunch(
             SearchNode<T> parent, int maxDepth) {
+        if (parent.getSearchTeam() == SearchNodeTeam.CHANCE) {
+            Log.error("Cannot launch minimax search on a CHANCE node");
+            System.exit(0);
+        }
         Log.debug("Starting Minimax thread group");
         if (maxDepth == 0) {
             return new ScoreNodePair<T>(parent, parent.getSearchScore());
@@ -145,15 +149,18 @@ public class MinimaxSearch {
         MinimaxSearchThread<T> toReturn = null;
         Iterator<MinimaxSearchThread<T>> iterator = containers.iterator();
         switch (parent.getSearchTeam()) {
-        case CHANCE:
-            float totalScore = 0.0f;
-            while (iterator.hasNext())
-                totalScore += iterator.next().getResult().score;
-            totalScore /= (containers.size());
-            toReturn = containers.get(Random.getRangeInt(0,
-                    containers.size() - 1));
-            toReturn.getResult().score = totalScore;
-            break;
+        // case CHANCE:
+        // float totalScore = 0.0f;
+        // while (iterator.hasNext()) {
+        // MinimaxSearchThread<T> s = iterator.next();
+        // totalScore += s.getResult().score
+        // * s.getResult().node.getChance();
+        // }
+        //
+        // toReturn = containers.get(Random.getRangeInt(0,
+        // containers.size() - 1));
+        // toReturn.getResult().score = totalScore;
+        // break;
         case MAX:
             toReturn = containers.get(0);
             while (iterator.hasNext()) {

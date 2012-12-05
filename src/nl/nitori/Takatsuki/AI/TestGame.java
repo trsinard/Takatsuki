@@ -67,4 +67,8 @@ public class TestGame implements SearchNode<TestGame> {
         return score;
     }
 
+    @Override
+    public float getChance() {
+        return Float.NaN;
+    }
 }

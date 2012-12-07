@@ -213,7 +213,10 @@ public class NeuralNetwork {
             // by about 43%
             Collections.shuffle(examples);
             error /= scale;
-
+            if(iterations % 50000 == 1){
+            	Log.debug("Error " + error);
+            }
+            
             if (error <= tol) {
                 Log.debug("Stopping training after " + iterations
                         + " iterations reaching training error of " + error);
